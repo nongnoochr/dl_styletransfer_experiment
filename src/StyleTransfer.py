@@ -1,7 +1,10 @@
 import datetime
 import logging
 
+import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 import torch
 import torch.optim as optim
 from torchvision import models
@@ -85,6 +88,67 @@ class StyleTransfer:
     def showTargetImage(self):
         self.__showImageComparison(self.__content, self.__target,
                                    title_base='Content Image', title_target='Target Image')
+        
+    def showContentRepresentation(self):
+        
+        feat_content_all = self.__content_features
+        feat_content = feat_content_all['conv4_2']
+        
+        self.__showFeatureOutputs(feat_content)
+        
+    def showStyleRepresentations(self):
+        layers_style_rep = ['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1']
+        
+        for cur_layer in layers_style_rep:
+            ax = sns.heatmap(self.__style_grams[cur_layer].to("cpu").clone().detach().numpy())
+            ax.set_title('Style Representation (Gram Matrix) of the "{}" layer'.format(cur_layer))
+            plt.show()
+            
+    def getGramMatrixIndicesSortedDescendingly(self, layer_name):
+        
+        gram_matrix = self.__style_grams[layer_name]
+        w, h = gram_matrix.size()
+        
+        gram_conv = gram_matrix.to("cpu").clone().detach().numpy()
+        flatten_gram_conv = gram_conv.flatten()
+        
+        # Get the index of a sorted value from max to min 
+        idx_sorted = flatten_gram_conv.argsort()[::-1]
+
+        list_coord = []
+        for cur_val_index in idx_sorted:
+            row_index = int(np.floor(cur_val_index / w))
+            col_index = cur_val_index - row_index * w
+            
+            list_coord.append((row_index, col_index))
+            
+        return list_coord
+    
+    def showStyleFiltersComparison(self, layer_name, idx_filter_1, idx_filter_2):
+        
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        
+        feat_style = self.__style_features[layer_name].squeeze()
+        
+        # content and style ims side-by-side
+        ax1.imshow(feat_style[idx_filter_1].to("cpu").clone().detach().numpy())
+        ax1.title.set_text('Filter#{}'.format(idx_filter_1))
+        ax1.set_axis_off()
+
+        ax2.imshow(feat_style[idx_filter_2].to("cpu").clone().detach().numpy())
+        ax2.title.set_text('Filter#{}'.format(idx_filter_2))
+        ax2.set_axis_off()
+        
+        fig.suptitle('Comparison of filter outputs in the "{}" layer'.format(layer_name), fontsize=12)
+        
+        
+    def showStyleFiltersAtLayer(self, layer_name):
+        
+        feat_style_all = self.__style_features
+        feat_style = feat_style_all[layer_name]
+        
+        self.__showFeatureOutputs(feat_style)
+            
         
     def export_target_image(self, output_path='output.png'):
         
@@ -250,6 +314,31 @@ class StyleTransfer:
         ax2.imshow(im_convert(tensor_image_target))
         ax2.title.set_text(title_target)
         ax2.set_axis_off()
+        
+    def __showFeatureOutputs(self, features):
+        
+        features = features.squeeze()
+        
+        num_filters, _, _ = features.size()
+        batches =  int(num_filters / 32)
+
+
+        def plot_content_rep(feat_content, idx_batch):
+            
+            fig, axs = plt.subplots(4, 8, figsize=(12,8), facecolor='w', edgecolor='k');
+            axs = axs.ravel();
+
+            for i in range(32):
+
+                cur_filter = idx_batch*32 + i
+                axs[i].imshow(features[cur_filter].to("cpu").clone().detach().numpy());
+                axs[i].set_title('Filter#{}'.format(cur_filter));
+                axs[i].set_axis_off();
+
+
+        for idx_batch in range(batches):
+            plot_content_rep(features, idx_batch);
+            
         
     def __get_features(self, image):
         """ Run an image forward through a model and get the features for 
