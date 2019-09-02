@@ -124,6 +124,20 @@ class StyleTransfer:
             
         return list_coord
     
+    def showTopMatchedStyleFilters(self, layer_name, n=3):
+        indices_all = self.getGramMatrixIndicesSortedDescendingly(layer_name)
+        
+        # Remove the diagonal indices
+        interested_indices = [ x for x in indices_all if x[0] != x[1]]
+        
+        # Remove the duplicated pair
+        interested_indices = interested_indices[::2]
+        
+        for cnt in range(n):
+            indices = interested_indices[cnt]
+            self.showStyleFiltersComparison(layer_name, indices[0], indices[1])
+        
+    
     def showStyleFiltersComparison(self, layer_name, idx_filter_1, idx_filter_2):
         
         fig, (ax1, ax2) = plt.subplots(1, 2)
