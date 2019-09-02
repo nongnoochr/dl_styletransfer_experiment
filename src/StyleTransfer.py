@@ -91,18 +91,21 @@ class StyleTransfer:
         
     def showContentRepresentation(self):
         
+        print('***** Content Representation *****')
+        
         feat_content_all = self.__content_features
         feat_content = feat_content_all['conv4_2']
         
         self.__showFeatureOutputs(feat_content)
         
-    def showStyleRepresentations(self):
-        layers_style_rep = ['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1']
+    def showStyleRepresentations(self, layer_names=['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1']):
+        layers_style_rep = layer_names
         
         for cur_layer in layers_style_rep:
             ax = sns.heatmap(self.__style_grams[cur_layer].to("cpu").clone().detach().numpy())
             ax.set_title('Style Representation (Gram Matrix) of the "{}" layer'.format(cur_layer))
             plt.show()
+            
             
     def getGramMatrixIndicesSortedDescendingly(self, layer_name):
         
@@ -140,7 +143,7 @@ class StyleTransfer:
     
     def showStyleFiltersComparison(self, layer_name, idx_filter_1, idx_filter_2):
         
-        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig, (ax1, ax2) = plt.subplots(1, 2, facecolor='w', edgecolor='k')
         
         feat_style = self.__style_features[layer_name].squeeze()
         
@@ -319,7 +322,7 @@ class StyleTransfer:
     def __showImageComparison(self, tensor_image_base, tensor_image_target, title_base='', title_target=''):
         
         # display the images
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10), facecolor='w', edgecolor='k')
         # content and style ims side-by-side
         ax1.imshow(im_convert(tensor_image_base))
         ax1.title.set_text(title_base)
