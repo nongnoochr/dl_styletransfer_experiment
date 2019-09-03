@@ -8,6 +8,7 @@ import seaborn as sns
 import torch
 import torch.optim as optim
 from torchvision import models
+from torch.autograd import Variable
 
 from .internal import im_convert, load_image
 
@@ -70,7 +71,8 @@ class StyleTransfer:
 
         # create a third "target" image and prep it for change
         if (init_target_using_whitenoise):
-            self.__target = torch.FloatTensor(self.__content.size()).uniform_(0, 1)
+            # Clone the content tensor first then replace with a white noise
+            self.__target = self.__content.clone().uniform_(0, 1).requires_grad_(True).to(self.__device)
         else:
             # it is a good idea to start of with the target as a copy of our *content* image
             # then iteratively change its style
@@ -247,7 +249,7 @@ class StyleTransfer:
             if  ii % show_every == 0:
                 print('*** [{}] Steps#{} - Total loss: {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ii, self.__final_loss))
                 plt.imshow(im_convert(self.__target))
-                plt.set_axis_off()
+                plt.axis('off')
                 plt.show()
         
 
