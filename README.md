@@ -1,4 +1,8 @@
-# Applying the 'Style Transfer' method to create a "Thai Modern Artwork"
+# Applying the 'Style Transfer' algorithm to create a "Thai Modern Artwork"
+
+This project contains my experiment  to apply the **Style Transfer** algorithm in Deep Learning to produce a new "Thai Modern Artwork".
+
+See more details about this work in my medium post [(Style Transfer) How to create a "Thai Modern Artwork" without artistic skills](www.tobeadded.com)
 
 ### Table of Contents
 
@@ -18,9 +22,12 @@ Below are python libraries that are required to run this code using Python versi
 * seaborn
 
 ## Project Details<a name="details"></a>
- 
-In case the notebook cannot be rendered in github, you  can download the html file or click the link below
-https://htmlpreview.github.io/?https://raw.githubusercontent.com/nongnoochr/dl_styletransfer_experiment/master/Analysis_Content_Style_Representation.html?token=ADY55V6IRHEU456TF76K2HK5NWYQC
+
+This project contains two notebooks which walk you through the experiment process where:
+* [Analysis_Content_Style_Representation.ipynb](./Analysis_Content_Style_Representation.ipynb) - This notebook contains the Analysis of the Content Representation and Style Representations of the images that we will be using in this experiment, and I would highly suggest going over this notebook first to get a better understading of the concepts of the Style Transfer algorithm and the setup for the experiment.
+   * In case the notebook cannot be rendered in github, you can download the html file [Analysis_Content_Style_Representation.html](./Analysis_Content_Style_Representation.html)
+* [StyleTransfer_Experiment_Results.ipynb](./StyleTransfer_Experiment_Results.ipynb) - This notebook contains the Experiment results with various parameter settings
+   * In case the notebook cannot be rendered in github, you can download the html file [StyleTransfer_Experiment_Results.html](./StyleTransfer_Experiment_Results.html)
 
 ## Licensing, Authors, Acknowledgements<a name="licensing"></a>
 
