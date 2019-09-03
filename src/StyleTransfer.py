@@ -15,7 +15,7 @@ class StyleTransfer:
     
     __final_loss = -1
 
-    def __init__(self, content_image='', style_image=''):
+    def __init__(self, content_image='', style_image='', init_target_using_whitenoise=False):
         
         # --- Default weights
         # weights for each style layer 
@@ -35,7 +35,15 @@ class StyleTransfer:
         
         # --- Get the current device (gpu or cpu)
         if torch.cuda.is_available():
+            
+            # Empty cache before doing anything in the gpu mode to prevent
+            # The CUDA's out of memory issue
+            
+            # To inspect the CUDA's memory, use the following command in a bash command
+            # $ nvidia-smi
+            
             torch.cuda.empty_cache()
+            
             self.__device = "cuda"
         else:
             self.__device = "cpu"
@@ -61,9 +69,12 @@ class StyleTransfer:
         self.__style    = self.__loadImage(style_image, shape=self.__content.shape[-2:])
 
         # create a third "target" image and prep it for change
-        # it is a good idea to start of with the target as a copy of our *content* image
-        # then iteratively change its style
-        self.__target = self.__content.clone().requires_grad_(True).to(self.__device)
+        if (init_target_using_whitenoise):
+            self.__target = torch.FloatTensor(self.__content.size()).uniform_(0, 1)
+        else:
+            # it is a good idea to start of with the target as a copy of our *content* image
+            # then iteratively change its style
+            self.__target = self.__content.clone().requires_grad_(True).to(self.__device)
         
         # Load features data of the the pre-trained network (vgg19)
         self.__vgg = self.__loadNetworkFeatures()
@@ -236,6 +247,7 @@ class StyleTransfer:
             if  ii % show_every == 0:
                 print('*** [{}] Steps#{} - Total loss: {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ii, self.__final_loss))
                 plt.imshow(im_convert(self.__target))
+                plt.set_axis_off()
                 plt.show()
         
 
